@@ -5,9 +5,9 @@
  * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
  */
 
-namespace Spryker\Service\Synchronization\Dependency\Service;
+namespace Spryker\Service\Synchronization\Model;
 
-interface SynchronizationToUtilSynchronizationServiceInterface
+interface KeyFilterInterface
 {
 
     /**
