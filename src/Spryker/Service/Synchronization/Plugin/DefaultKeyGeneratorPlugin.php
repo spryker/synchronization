@@ -41,6 +41,10 @@ class DefaultKeyGeneratorPlugin extends BaseKeyGenerator implements Synchronizat
             ? sprintf('%s:%s', $localeAndStore, $reference)
             : sprintf('%s%s', $localeAndStore, $reference);
 
+        if (!$keySuffix) {
+            return $this->getResource();
+        }
+        
         return sprintf('%s:%s', $this->getResource(), $keySuffix);
     }
 }
