@@ -5,11 +5,10 @@
  * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
  */
 
-namespace SprykerTest\Service\Synchronization\Business;
+namespace SprykerTest\Service\Synchronization;
 
 use Codeception\Test\Unit;
 use Generated\Shared\Transfer\SynchronizationDataTransfer;
-use SprykerTest\Service\Synchronization\SynchronizationServiceTester;
 
 /**
  * Auto-generated group annotations
@@ -17,7 +16,6 @@ use SprykerTest\Service\Synchronization\SynchronizationServiceTester;
  * @group SprykerTest
  * @group Service
  * @group Synchronization
- * @group Business
  * @group SynchronizationServiceTest
  * Add your own group annotations below this line
  */

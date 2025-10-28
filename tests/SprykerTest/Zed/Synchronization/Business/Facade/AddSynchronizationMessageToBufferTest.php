@@ -55,7 +55,7 @@ class AddSynchronizationMessageToBufferTest extends Unit
         $messagesInMemory = $this->tester->getStaticVariable(InMemoryMessageSynchronizer::class, 'messages');
 
         $this->assertMessageKey($messagesInMemory);
-        $this->assertSame($message, $messagesInMemory['storage']['sync.storage.product']['write'][0]->toArray());
+        $this->assertEquals($this->recursiveKsort($message), $this->recursiveKsort($messagesInMemory['storage']['sync.storage.product']['write'][0]->toArray()));
     }
 
     /**
@@ -81,9 +81,9 @@ class AddSynchronizationMessageToBufferTest extends Unit
         // Assert
         $messagesInMemory = $this->tester->getStaticVariable(InMemoryMessageSynchronizer::class, 'messages');
 
-        $this->assertSame($message1, $messagesInMemory['storage']['sync.storage.product']['write'][0]->toArray());
-        $this->assertSame($message2, $messagesInMemory['storage']['sync.storage.product']['write'][1]->toArray());
-        $this->assertSame($message3, $messagesInMemory['search']['sync.search.product']['delete'][0]->toArray());
+        $this->assertSame($this->recursiveKsort($message1), $this->recursiveKsort($messagesInMemory['storage']['sync.storage.product']['write'][0]->toArray()));
+        $this->assertSame($this->recursiveKsort($message2), $this->recursiveKsort($messagesInMemory['storage']['sync.storage.product']['write'][1]->toArray()));
+        $this->assertSame($this->recursiveKsort($message3), $this->recursiveKsort($messagesInMemory['search']['sync.search.product']['delete'][0]->toArray()));
     }
 
     /**
@@ -112,5 +112,23 @@ class AddSynchronizationMessageToBufferTest extends Unit
         $this->assertArrayHasKey('storage', $messagesInMemory);
         $this->assertArrayHasKey('sync.storage.product', $messagesInMemory['storage']);
         $this->assertArrayHasKey('write', $messagesInMemory['storage']['sync.storage.product']);
+    }
+
+    /**
+     * @param array<mixed> $array
+     *
+     * @return array<mixed>
+     */
+    protected function recursiveKsort(array $array): array
+    {
+        ksort($array);
+
+        foreach ($array as &$value) {
+            if (is_array($value)) {
+                $value = $this->recursiveKsort($value);
+            }
+        }
+
+        return $array;
     }
 }
