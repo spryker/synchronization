@@ -7,6 +7,8 @@
 
 namespace Spryker\Zed\Synchronization\Dependency\Client;
 
+use Generated\Shared\Transfer\SearchDocumentTransfer;
+
 class SynchronizationToSearchClientBridge implements SynchronizationToSearchClientInterface
 {
     /**
@@ -23,49 +25,25 @@ class SynchronizationToSearchClientBridge implements SynchronizationToSearchClie
     }
 
     /**
-     * @param string $key
-     * @param string|null $typeName
-     * @param string|null $indexName
+     * @param \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer
      *
      * @return mixed
      */
-    public function read($key, $typeName = null, $indexName = null)
+    public function readDocument(SearchDocumentTransfer $searchDocumentTransfer)
     {
-        return $this->searchClient->read($key, $typeName, $indexName);
+        return $this->searchClient->readDocument($searchDocumentTransfer);
     }
 
     /**
-     * @param array<string, mixed> $dataSet
-     * @param string|null $typeName
-     * @param string|null $indexName
+     * @api
+     *
+     * @param \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer
      *
      * @return bool
      */
-    public function write(array $dataSet, $typeName = null, $indexName = null)
+    public function writeDocument(SearchDocumentTransfer $searchDocumentTransfer): bool
     {
-        return $this->searchClient->write($dataSet, $typeName, $indexName);
-    }
-
-    /**
-     * @param array<\Generated\Shared\Transfer\SearchDocumentTransfer> $searchDocumentTransfers
-     *
-     * @return bool
-     */
-    public function writeBulk(array $searchDocumentTransfers): bool
-    {
-        return $this->searchClient->writeBulk($searchDocumentTransfers);
-    }
-
-    /**
-     * @param array<string, mixed> $dataSet
-     * @param string|null $typeName
-     * @param string|null $indexName
-     *
-     * @return bool
-     */
-    public function delete(array $dataSet, $typeName = null, $indexName = null)
-    {
-        return $this->searchClient->delete($dataSet, $typeName, $indexName);
+        return $this->searchClient->writeDocument($searchDocumentTransfer);
     }
 
     /**
@@ -73,8 +51,28 @@ class SynchronizationToSearchClientBridge implements SynchronizationToSearchClie
      *
      * @return bool
      */
-    public function deleteBulk(array $searchDocumentTransfers): bool
+    public function writeDocuments(array $searchDocumentTransfers): bool
     {
-        return $this->searchClient->deleteBulk($searchDocumentTransfers);
+        return $this->searchClient->writeDocuments($searchDocumentTransfers);
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer
+     *
+     * @return bool
+     */
+    public function deleteDocument(SearchDocumentTransfer $searchDocumentTransfer): bool
+    {
+        return $this->searchClient->deleteDocument($searchDocumentTransfer);
+    }
+
+    /**
+     * @param array<\Generated\Shared\Transfer\SearchDocumentTransfer> $searchDocumentTransfers
+     *
+     * @return bool
+     */
+    public function deleteDocuments(array $searchDocumentTransfers): bool
+    {
+        return $this->searchClient->deleteDocuments($searchDocumentTransfers);
     }
 }

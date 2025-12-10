@@ -40,6 +40,7 @@
         <property name="id" type="string"/>
         <property name="data" type="array" singular="data"/>
         <property name="storeName" type="string"/>
+        <property name="searchContext" type="SearchContext"/>
     </transfer>
 
     <transfer name="SynchronizationDataQueryExpanderStrategyConfiguration">
@@ -59,6 +60,16 @@
         <property name="operationType" type="string"/>
         <property name="locale" type="string"/>
         <property name="resource" type="string"/>
+    </transfer>
+
+    <transfer name="SearchContext">
+        <property name="elasticsearchContext" type="ElasticsearchSearchContext"/>
+        <property name="sourceIdentifier" type="string"/>
+    </transfer>
+
+    <transfer name="ElasticsearchSearchContext">
+        <property name="indexName" type="string"/>
+        <property name="typeName" type="string"/>
     </transfer>
 
 </transfers>

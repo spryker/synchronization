@@ -8,7 +8,6 @@
 namespace SprykerTest\Zed\Synchronization\Business;
 
 use Codeception\Test\Unit;
-use Elastica\Exception\NotFoundException;
 use Generated\Shared\Transfer\QueueReceiveMessageTransfer;
 use Generated\Shared\Transfer\QueueSendMessageTransfer;
 use Generated\Shared\Transfer\SearchDocumentTransfer;
@@ -124,11 +123,11 @@ class SynchronizationFacadeTest extends Unit
 
         $searchClientBridgeMock = $this->createSearchClientBridge();
         $searchClientBridgeMock
-            ->method('read')
+            ->method('readDocument')
             ->willReturn(new SynchronizationDataTransfer());
 
         $searchClientBridgeMock
-            ->method('writeBulk')
+            ->method('writeDocuments')
             ->with($this->callback(function (array $data) use ($queueMessageBody) {
                 $searchDocumentTransfer = new SearchDocumentTransfer();
                 $searchDocumentTransfer->setId($queueMessageBody['write']['key']);
@@ -140,7 +139,7 @@ class SynchronizationFacadeTest extends Unit
             }));
 
         $searchClientBridgeMock
-            ->method('deleteBulk')
+            ->method('deleteDocuments')
             ->with($this->callback(function (array $data) use ($queueMessageBody) {
                 $searchDocumentTransfer = new SearchDocumentTransfer();
                 $searchDocumentTransfer->setId($queueMessageBody['delete']['key']);
@@ -301,17 +300,20 @@ class SynchronizationFacadeTest extends Unit
         $container = new Container();
         $container->set(SynchronizationDependencyProvider::CLIENT_SEARCH, function (Container $container) {
             $searchMock = $this->createSearchClientBridge();
-            $searchMock->expects($this->once())->method('write')->will(
+            $searchMock->expects($this->once())->method('writeDocument')->will(
                 $this->returnCallback(
-                    function ($data): void {
-                        $this->assertSame('testKey', key($data));
-                        $this->assertSame(['data' => 'testValue'], current($data));
+                    function (SearchDocumentTransfer $searchDocumentTransfer): bool {
+                        $data = $searchDocumentTransfer->getData();
+                        $this->assertSame('testKey', $searchDocumentTransfer->getId());
+                        $this->assertSame(['data' => 'testValue'], $data);
+
+                        return true;
                     },
                 ),
             );
-            $searchMock->expects($this->once())->method('read')->will($this->returnCallback(
-                function ($key): void {
-                    throw new NotFoundException();
+            $searchMock->expects($this->once())->method('readDocument')->will($this->returnCallback(
+                function ($key): SearchDocumentTransfer {
+                    return (new SearchDocumentTransfer());
                 },
             ));
 
@@ -342,17 +344,19 @@ class SynchronizationFacadeTest extends Unit
         $container = new Container();
         $container->set(SynchronizationDependencyProvider::CLIENT_SEARCH, function (Container $container) {
             $searchMock = $this->createSearchClientBridge();
-            $searchMock->expects($this->once())->method('delete')->will(
+            $searchMock->expects($this->once())->method('deleteDocument')->will(
                 $this->returnCallback(
-                    function ($data): void {
-                        $this->assertSame('testKey', key($data));
+                    function (SearchDocumentTransfer $searchDocumentTransfer): bool {
+                        $this->assertSame('testKey', $searchDocumentTransfer->getId());
+
+                        return true;
                     },
                 ),
             );
 
-            $searchMock->expects($this->once())->method('read')->will($this->returnCallback(
-                function ($key): void {
-                    throw new NotFoundException();
+            $searchMock->expects($this->once())->method('readDocument')->will($this->returnCallback(
+                function ($key): SearchDocumentTransfer {
+                    return new SearchDocumentTransfer();
                 },
             ));
 
@@ -507,11 +511,11 @@ class SynchronizationFacadeTest extends Unit
         return $this->getMockBuilder(SynchronizationToSearchClientInterface::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
-                'write',
-                'writeBulk',
-                'read',
-                'delete',
-                'deleteBulk',
+                'writeDocument',
+                'writeDocuments',
+                'readDocument',
+                'deleteDocument',
+                'deleteDocuments',
             ])
             ->getMock();
     }

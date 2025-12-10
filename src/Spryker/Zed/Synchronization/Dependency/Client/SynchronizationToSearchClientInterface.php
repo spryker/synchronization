@@ -7,46 +7,42 @@
 
 namespace Spryker\Zed\Synchronization\Dependency\Client;
 
+use Generated\Shared\Transfer\SearchDocumentTransfer;
+
 interface SynchronizationToSearchClientInterface
 {
     /**
-     * @param string $key
-     * @param string|null $typeName
-     * @param string|null $indexName
+     * @param \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer
      *
      * @return mixed
      */
-    public function read($key, $typeName = null, $indexName = null);
+    public function readDocument(SearchDocumentTransfer $searchDocumentTransfer);
 
     /**
-     * @param array<string, mixed> $dataSet
-     * @param string|null $typeName
-     * @param string|null $indexName
+     * @param \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer
      *
      * @return bool
      */
-    public function write(array $dataSet, $typeName = null, $indexName = null);
-
-    /**
-     * @param array<\Generated\Shared\Transfer\SearchDocumentTransfer> $searchDocumentTransfers
-     *
-     * @return bool
-     */
-    public function writeBulk(array $searchDocumentTransfers): bool;
-
-    /**
-     * @param array<string, mixed> $dataSet
-     * @param string|null $typeName
-     * @param string|null $indexName
-     *
-     * @return bool
-     */
-    public function delete(array $dataSet, $typeName = null, $indexName = null);
+    public function writeDocument(SearchDocumentTransfer $searchDocumentTransfer): bool;
 
     /**
      * @param array<\Generated\Shared\Transfer\SearchDocumentTransfer> $searchDocumentTransfers
      *
      * @return bool
      */
-    public function deleteBulk(array $searchDocumentTransfers): bool;
+    public function writeDocuments(array $searchDocumentTransfers): bool;
+
+    /**
+     * @param \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer
+     *
+     * @return bool
+     */
+    public function deleteDocument(SearchDocumentTransfer $searchDocumentTransfer): bool;
+
+    /**
+     * @param array<\Generated\Shared\Transfer\SearchDocumentTransfer> $searchDocumentTransfers
+     *
+     * @return bool
+     */
+    public function deleteDocuments(array $searchDocumentTransfers): bool;
 }

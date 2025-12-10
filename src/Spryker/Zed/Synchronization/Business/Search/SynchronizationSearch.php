@@ -7,7 +7,8 @@
 
 namespace Spryker\Zed\Synchronization\Business\Search;
 
-use Elastica\Exception\NotFoundException;
+use Generated\Shared\Transfer\ElasticsearchSearchContextTransfer;
+use Generated\Shared\Transfer\SearchContextTransfer;
 use Generated\Shared\Transfer\SearchDocumentTransfer;
 use Spryker\Zed\Synchronization\Business\Synchronization\SynchronizationInterface;
 use Spryker\Zed\Synchronization\Business\Validation\OutdatedValidatorInterface;
@@ -19,27 +20,22 @@ class SynchronizationSearch implements SynchronizationInterface
     /**
      * @var string
      */
-    public const KEY = 'key';
+    protected const KEY = 'key';
 
     /**
      * @var string
      */
-    public const VALUE = 'value';
+    protected const VALUE = 'value';
 
     /**
      * @var string
      */
-    public const TYPE = 'type';
+    protected const TYPE = 'type';
 
     /**
      * @var string
      */
-    public const INDEX = 'index';
-
-    /**
-     * @var string
-     */
-    public const TIMESTAMP = '_timestamp';
+    protected const INDEX = 'index';
 
     /**
      * @var string
@@ -49,22 +45,12 @@ class SynchronizationSearch implements SynchronizationInterface
     /**
      * @var string
      */
+    protected const TIMESTAMP = '_timestamp';
+
+    /**
+     * @var string
+     */
     protected const DESTINATION_TYPE = 'search';
-
-    /**
-     * @var \Spryker\Zed\Synchronization\Dependency\Client\SynchronizationToSearchClientInterface
-     */
-    protected $searchClient;
-
-    /**
-     * @var \Spryker\Zed\Synchronization\Business\Validation\OutdatedValidatorInterface
-     */
-    protected $outdatedValidator;
-
-    /**
-     * @var \Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface
-     */
-    protected $storeFacade;
 
     /**
      * @param \Spryker\Zed\Synchronization\Dependency\Client\SynchronizationToSearchClientInterface $searchClient
@@ -72,13 +58,10 @@ class SynchronizationSearch implements SynchronizationInterface
      * @param \Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface $storeFacade
      */
     public function __construct(
-        SynchronizationToSearchClientInterface $searchClient,
-        OutdatedValidatorInterface $outdatedValidator,
-        SynchronizationToStoreFacadeInterface $storeFacade
+        protected SynchronizationToSearchClientInterface $searchClient,
+        protected OutdatedValidatorInterface $outdatedValidator,
+        protected SynchronizationToStoreFacadeInterface $storeFacade
     ) {
-        $this->searchClient = $searchClient;
-        $this->outdatedValidator = $outdatedValidator;
-        $this->storeFacade = $storeFacade;
     }
 
     /**
@@ -90,21 +73,21 @@ class SynchronizationSearch implements SynchronizationInterface
     public function write(array $data, $queueName)
     {
         $typeName = $this->getParam($data, static::TYPE);
-        $indexName = $this->getParam($data, static::INDEX);
-
         $data = $this->formatTimestamp($data);
-        $existingEntry = $this->read($data[static::KEY], $typeName);
-
-        /** @var array<string, mixed> $formattedData */
-        $formattedData = [
-            $data[static::KEY] => $data[static::VALUE],
-        ];
-
-        if ($existingEntry !== null && $this->outdatedValidator->isInvalid($queueName, $data[static::VALUE], $existingEntry)) {
+        $storeName = null;
+        /* Required by infrastructure, exists only for BC with DMS OFF mode. */
+        if ($this->storeFacade->isDynamicStoreEnabled()) {
+            $data = current($this->expandWithStoreNames([$data]));
+            $storeName = $data[static::STORE];
+        }
+        $existingEntry = $this->read($data[static::KEY], $typeName, $storeName);
+        if ($existingEntry !== [] && $this->outdatedValidator->isInvalid($queueName, $data[static::VALUE], $existingEntry)) {
             return;
         }
 
-        $this->searchClient->write($formattedData, $typeName, $indexName);
+        /** @var \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer */
+        $searchDocumentTransfer = current($this->prepareSearchDocumentTransfers([$data]));
+        $this->searchClient->writeDocument($searchDocumentTransfer);
     }
 
     /**
@@ -116,21 +99,21 @@ class SynchronizationSearch implements SynchronizationInterface
     public function delete(array $data, $queueName)
     {
         $typeName = $this->getParam($data, static::TYPE);
-        $indexName = $this->getParam($data, static::INDEX);
-
         $data = $this->formatTimestamp($data);
-        $existingEntry = $this->read($data[static::KEY], $typeName);
-
-        /** @var array<string, mixed> $formattedData */
-        $formattedData = [
-            $data[static::KEY] => [],
-        ];
-
-        if ($existingEntry !== null && $this->outdatedValidator->isInvalid($queueName, $data[static::VALUE], $existingEntry)) {
+        $storeName = null;
+        /* Required by infrastructure, exists only for BC with DMS OFF mode. */
+        if ($this->storeFacade->isDynamicStoreEnabled()) {
+            $data = current($this->expandWithStoreNames([$data]));
+            $storeName = $data[static::STORE];
+        }
+        $existingEntry = $this->read($data[static::KEY], $typeName, $storeName);
+        if ($existingEntry !== [] && $this->outdatedValidator->isInvalid($queueName, $data[static::VALUE], $existingEntry)) {
             return;
         }
 
-        $this->searchClient->delete($formattedData, $typeName, $indexName);
+        /** @var \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer */
+        $searchDocumentTransfer = current($this->prepareSearchDocumentTransfers([$data]));
+        $this->searchClient->deleteDocument($searchDocumentTransfer);
     }
 
     /**
@@ -153,15 +136,28 @@ class SynchronizationSearch implements SynchronizationInterface
      * @param string $key
      * @param string|null $typeName
      *
-     * @return array|null
+     * @return array
      */
-    protected function read(string $key, ?string $typeName)
+    protected function read(string $key, ?string $typeName, ?string $storeName)
     {
-        try {
-            return $this->searchClient->read($key, $typeName)->getData();
-        } catch (NotFoundException $exception) {
-            return null;
+        $searchDocumentTransfer = (new SearchDocumentTransfer())
+            ->setId($key)
+            ->setSearchContext(
+                (new SearchContextTransfer())
+                    ->setSourceIdentifier($typeName)
+                    ->setElasticsearchContext(
+                        (new ElasticsearchSearchContextTransfer())
+                            ->setTypeName($typeName),
+                    ),
+            );
+        if ($storeName !== null) {
+            $searchDocumentTransfer->getSearchContext()->setStoreName($storeName);
         }
+
+        /** @var \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer */
+        $searchDocumentTransfer = $this->searchClient->readDocument($searchDocumentTransfer);
+
+        return $searchDocumentTransfer->getData();
     }
 
     /**
@@ -198,11 +194,11 @@ class SynchronizationSearch implements SynchronizationInterface
             return;
         }
 
-        $this->searchClient->writeBulk($dataSets);
+        $this->searchClient->writeDocuments($dataSets);
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param array<int, mixed> $data
      *
      * @return array<\Generated\Shared\Transfer\SearchDocumentTransfer>
      */
@@ -217,15 +213,22 @@ class SynchronizationSearch implements SynchronizationInterface
             unset($value['_timestamp']);
 
             $searchDocumentTransfer = new SearchDocumentTransfer();
-            $searchDocumentTransfer->setType($typeName);
-            $searchDocumentTransfer->setIndex($indexName);
             $searchDocumentTransfer->setId($key);
             $searchDocumentTransfer->setData($value);
+            $searchDocumentTransfer->setSearchContext(
+                (new SearchContextTransfer())
+                    ->setSourceIdentifier($typeName)
+                    ->setElasticsearchContext(
+                        (new ElasticsearchSearchContextTransfer())
+                            ->setIndexName($indexName)
+                            ->setTypeName($typeName),
+                    ),
+            );
 
             /* Required by infrastructure, exists only for BC with DMS OFF mode. */
             if ($this->storeFacade->isDynamicStoreEnabled()) {
-                $store = $datum[static::STORE];
-                $searchDocumentTransfer->setStoreName($store);
+                $storeName = $datum[static::STORE];
+                $searchDocumentTransfer->getSearchContext()->setStoreName($storeName);
             }
 
             $searchDocumentTransfers[] = $searchDocumentTransfer;
@@ -251,7 +254,7 @@ class SynchronizationSearch implements SynchronizationInterface
             return;
         }
 
-        $this->searchClient->deleteBulk($searchDocumentTransfers);
+        $this->searchClient->deleteDocuments($searchDocumentTransfers);
     }
 
     /**
@@ -262,25 +265,6 @@ class SynchronizationSearch implements SynchronizationInterface
     public function isDestinationTypeApplicable(string $destinationType): bool
     {
         return $destinationType === static::DESTINATION_TYPE;
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     *
-     * @return array
-     */
-    protected function prepareDeleteBulkDataSets(array $data): array
-    {
-        $dataSets = [];
-        foreach ($data as $datum) {
-            $key = $datum[static::KEY];
-            $value = $datum[static::VALUE];
-
-            unset($value['_timestamp']);
-            $dataSets[$key] = $value;
-        }
-
-        return $dataSets;
     }
 
     /**
