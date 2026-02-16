@@ -6,3 +6,7 @@ parameters:
         - '#Call to an undefined method .+ActiveRecordInterface::getData\(\).#'
         -
             identifier: missingType.iterableValue
+        -
+            identifier: instanceof.alwaysTrue
+        -
+            identifier: function.alreadyNarrowedType
