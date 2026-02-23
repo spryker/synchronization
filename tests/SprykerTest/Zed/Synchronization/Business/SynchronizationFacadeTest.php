@@ -235,13 +235,11 @@ class SynchronizationFacadeTest extends Unit
         $container = new Container();
         $container->set(SynchronizationDependencyProvider::CLIENT_STORAGE, function (Container $container) {
             $storageMock = $this->createStorageClientBridge();
-            $storageMock->expects($this->once())->method('set')->will(
-                $this->returnCallback(
-                    function ($key, $value): void {
-                        $this->assertSame('testKey', $key);
-                        $this->assertSame(['data' => 'testValue'], $value);
-                    },
-                ),
+            $storageMock->expects($this->once())->method('set')->willReturnCallback(
+                function ($key, $value): void {
+                    $this->assertSame('testKey', $key);
+                    $this->assertSame(['data' => 'testValue'], $value);
+                },
             );
 
             return $storageMock;
@@ -269,12 +267,10 @@ class SynchronizationFacadeTest extends Unit
         $container = new Container();
         $container->set(SynchronizationDependencyProvider::CLIENT_STORAGE, function (Container $container) {
             $storageMock = $this->createStorageClientBridge();
-            $storageMock->expects($this->once())->method('delete')->will(
-                $this->returnCallback(
-                    function ($key): void {
-                        $this->assertSame('testKey', $key);
-                    },
-                ),
+            $storageMock->expects($this->once())->method('delete')->willReturnCallback(
+                function ($key): void {
+                    $this->assertSame('testKey', $key);
+                },
             );
 
             return $storageMock;
@@ -300,22 +296,20 @@ class SynchronizationFacadeTest extends Unit
         $container = new Container();
         $container->set(SynchronizationDependencyProvider::CLIENT_SEARCH, function (Container $container) {
             $searchMock = $this->createSearchClientBridge();
-            $searchMock->expects($this->once())->method('writeDocument')->will(
-                $this->returnCallback(
-                    function (SearchDocumentTransfer $searchDocumentTransfer): bool {
-                        $data = $searchDocumentTransfer->getData();
-                        $this->assertSame('testKey', $searchDocumentTransfer->getId());
-                        $this->assertSame(['data' => 'testValue'], $data);
+            $searchMock->expects($this->once())->method('writeDocument')->willReturnCallback(
+                function (SearchDocumentTransfer $searchDocumentTransfer): bool {
+                    $data = $searchDocumentTransfer->getData();
+                    $this->assertSame('testKey', $searchDocumentTransfer->getId());
+                    $this->assertSame(['data' => 'testValue'], $data);
 
-                        return true;
-                    },
-                ),
+                    return true;
+                },
             );
-            $searchMock->expects($this->once())->method('readDocument')->will($this->returnCallback(
+            $searchMock->expects($this->once())->method('readDocument')->willReturnCallback(
                 function ($key): SearchDocumentTransfer {
                     return (new SearchDocumentTransfer());
                 },
-            ));
+            );
 
             return $searchMock;
         });
@@ -344,21 +338,19 @@ class SynchronizationFacadeTest extends Unit
         $container = new Container();
         $container->set(SynchronizationDependencyProvider::CLIENT_SEARCH, function (Container $container) {
             $searchMock = $this->createSearchClientBridge();
-            $searchMock->expects($this->once())->method('deleteDocument')->will(
-                $this->returnCallback(
-                    function (SearchDocumentTransfer $searchDocumentTransfer): bool {
-                        $this->assertSame('testKey', $searchDocumentTransfer->getId());
+            $searchMock->expects($this->once())->method('deleteDocument')->willReturnCallback(
+                function (SearchDocumentTransfer $searchDocumentTransfer): bool {
+                    $this->assertSame('testKey', $searchDocumentTransfer->getId());
 
-                        return true;
-                    },
-                ),
+                    return true;
+                },
             );
 
-            $searchMock->expects($this->once())->method('readDocument')->will($this->returnCallback(
+            $searchMock->expects($this->once())->method('readDocument')->willReturnCallback(
                 function ($key): SearchDocumentTransfer {
                     return new SearchDocumentTransfer();
                 },
-            ));
+            );
 
             return $searchMock;
         });
