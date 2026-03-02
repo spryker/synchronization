@@ -44,11 +44,6 @@ class SynchronizationStorage implements SynchronizationInterface
      */
     protected $outdatedValidator;
 
-    /**
-     * @param \Spryker\Zed\Synchronization\Dependency\Client\SynchronizationToStorageClientInterface $storageClient
-     * @param \Spryker\Zed\Synchronization\Dependency\Service\SynchronizationToUtilEncodingServiceInterface $utilEncodingService
-     * @param \Spryker\Zed\Synchronization\Business\Validation\OutdatedValidatorInterface $outdatedValidator
-     */
     public function __construct(
         SynchronizationToStorageClientInterface $storageClient,
         SynchronizationToUtilEncodingServiceInterface $utilEncodingService,
@@ -180,11 +175,6 @@ class SynchronizationStorage implements SynchronizationInterface
         $this->storageClient->deleteMulti($keysToDelete);
     }
 
-    /**
-     * @param string $destinationType
-     *
-     * @return bool
-     */
     public function isDestinationTypeApplicable(string $destinationType): bool
     {
         return $destinationType === static::DESTINATION_TYPE;

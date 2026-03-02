@@ -32,9 +32,6 @@ class QueueMessageHelperTest extends Unit
      */
     protected const TEST_ERROR_MESSAGE = 'test error message';
 
-    /**
-     * @return void
-     */
     public function testMarkMessageAsFailed(): void
     {
         $utilEncodingService = $this->createSynchronizationToUtilEncodingService();

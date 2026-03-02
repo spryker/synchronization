@@ -21,9 +21,6 @@ class OutdatedValidator implements OutdatedValidatorInterface
      */
     protected $config;
 
-    /**
-     * @param \Spryker\Zed\Synchronization\SynchronizationConfig $config
-     */
     public function __construct(SynchronizationConfig $config)
     {
         $this->config = $config;

@@ -14,10 +14,6 @@ use Spryker\Service\Synchronization\SynchronizationConfig;
 
 class DefaultKeyGeneratorPlugin extends BaseKeyGenerator implements SynchronizationKeyGeneratorPluginInterface
 {
-    /**
-     * @param \Spryker\Service\Synchronization\Model\KeyFilterInterface $keyFilter
-     * @param \Spryker\Service\Synchronization\SynchronizationConfig $synchronizationConfig
-     */
     public function __construct(protected KeyFilterInterface $keyFilter, protected SynchronizationConfig $synchronizationConfig)
     {
     }

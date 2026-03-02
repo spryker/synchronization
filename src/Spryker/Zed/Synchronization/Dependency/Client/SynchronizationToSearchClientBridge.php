@@ -56,11 +56,6 @@ class SynchronizationToSearchClientBridge implements SynchronizationToSearchClie
         return $this->searchClient->writeDocuments($searchDocumentTransfers);
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\SearchDocumentTransfer $searchDocumentTransfer
-     *
-     * @return bool
-     */
     public function deleteDocument(SearchDocumentTransfer $searchDocumentTransfer): bool
     {
         return $this->searchClient->deleteDocument($searchDocumentTransfer);

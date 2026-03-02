@@ -33,9 +33,6 @@ class SynchronizationDataRepositoryPluginIterator extends AbstractSynchronizatio
         $this->data = $plugin->getData($ids);
     }
 
-    /**
-     * @return void
-     */
     protected function updateCurrent(): void
     {
         $this->current = array_slice($this->data, $this->offset, $this->chunkSize, true);

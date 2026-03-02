@@ -46,9 +46,6 @@ class SynchronizationDataQueryContainerPluginIterator extends AbstractSynchroniz
         $this->filterIds = $ids;
     }
 
-    /**
-     * @return void
-     */
     protected function updateCurrent(): void
     {
         $synchronizationDataQueryExpanderStrategyConfigurationTransfer = new SynchronizationDataQueryExpanderStrategyConfigurationTransfer();

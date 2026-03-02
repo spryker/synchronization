@@ -88,17 +88,11 @@ class SynchronizationBusinessFactory extends AbstractBusinessFactory
         );
     }
 
-    /**
-     * @return \Spryker\Zed\SynchronizationExtension\Dependency\Plugin\SynchronizationDataQueryExpanderStrategyPluginInterface
-     */
     public function getSynchronizationDataQueryExpanderStrategyPlugin(): SynchronizationDataQueryExpanderStrategyPluginInterface
     {
         return $this->getProvidedDependency(SynchronizationDependencyProvider::PLUGIN_SYNCHRONIZATION_DATA_QUERY_EXPANDER_STRATEGY);
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Business\Export\ExporterPluginResolverInterface
-     */
     public function createExporterPluginResolver(): ExporterPluginResolverInterface
     {
         return new ExporterPluginResolver(
@@ -108,9 +102,6 @@ class SynchronizationBusinessFactory extends AbstractBusinessFactory
         );
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Business\Message\QueueMessageProcessorInterface
-     */
     public function createSearchQueueMessageProcessor(): QueueMessageProcessorInterface
     {
         return new BulkQueueMessageProcessor(
@@ -119,9 +110,6 @@ class SynchronizationBusinessFactory extends AbstractBusinessFactory
         );
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Business\Message\QueueMessageProcessorInterface
-     */
     public function createStorageQueueMessageProcessor(): QueueMessageProcessorInterface
     {
         return new BulkQueueMessageProcessor(
@@ -130,9 +118,6 @@ class SynchronizationBusinessFactory extends AbstractBusinessFactory
         );
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Business\Message\QueueMessageHelperInterface
-     */
     public function createQueueMessageHelper(): QueueMessageHelperInterface
     {
         return new QueueMessageHelper(
@@ -160,9 +145,6 @@ class SynchronizationBusinessFactory extends AbstractBusinessFactory
         );
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Business\Synchronizer\MessageSynchronizerInterface
-     */
     public function createInMemoryMessageSynchronizer(): MessageSynchronizerInterface
     {
         if (!static::$inMemoryMessageSynchronizer) {
@@ -226,9 +208,6 @@ class SynchronizationBusinessFactory extends AbstractBusinessFactory
         return $this->getProvidedDependency(SynchronizationDependencyProvider::PLUGINS_SYNCHRONIZATION_DATA);
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface
-     */
     public function getStoreFacade(): SynchronizationToStoreFacadeInterface
     {
         return $this->getProvidedDependency(SynchronizationDependencyProvider::FACADE_STORE);

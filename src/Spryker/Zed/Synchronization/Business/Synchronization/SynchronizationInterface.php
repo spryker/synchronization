@@ -39,10 +39,5 @@ interface SynchronizationInterface
      */
     public function deleteBulk(array $data): void;
 
-    /**
-     * @param string $destinationType
-     *
-     * @return bool
-     */
     public function isDestinationTypeApplicable(string $destinationType): bool;
 }

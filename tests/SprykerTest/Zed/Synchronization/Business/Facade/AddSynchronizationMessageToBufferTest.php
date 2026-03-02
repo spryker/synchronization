@@ -30,18 +30,12 @@ class AddSynchronizationMessageToBufferTest extends Unit
      */
     protected SynchronizationBusinessTester $tester;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->tester->clearStaticVariable(InMemoryMessageSynchronizer::class, 'messages');
     }
 
-    /**
-     * @return void
-     */
     public function testShouldAddSyncMessageToInMemoryStorage(): void
     {
         // Arrange
@@ -58,9 +52,6 @@ class AddSynchronizationMessageToBufferTest extends Unit
         $this->assertEquals($this->recursiveKsort($message), $this->recursiveKsort($messagesInMemory['storage']['sync.storage.product']['write'][0]->toArray()));
     }
 
-    /**
-     * @return void
-     */
     public function testShouldAddDifferentSyncMessagesToInMemoryStorage(): void
     {
         // Arrange
@@ -86,9 +77,6 @@ class AddSynchronizationMessageToBufferTest extends Unit
         $this->assertSame($this->recursiveKsort($message3), $this->recursiveKsort($messagesInMemory['search']['sync.search.product']['delete'][0]->toArray()));
     }
 
-    /**
-     * @return void
-     */
     public function testShouldNotAddSyncMessageToInMemoryStorageWithWrongOperationType(): void
     {
         // Arrange

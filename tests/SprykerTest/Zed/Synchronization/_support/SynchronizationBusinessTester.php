@@ -29,12 +29,6 @@ class SynchronizationBusinessTester extends Actor
 {
     use _generated\SynchronizationBusinessTesterActions;
 
-    /**
-     * @param string $className
-     * @param string $propertyName
-     *
-     * @return void
-     */
     public function clearStaticVariable(string $className, string $propertyName): void
     {
         $reflectionResolver = new ReflectionClass($className);

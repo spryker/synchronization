@@ -11,12 +11,6 @@ use Generated\Shared\Transfer\QueueReceiveMessageTransfer;
 
 interface QueueMessageHelperInterface
 {
-    /**
-     * @param \Generated\Shared\Transfer\QueueReceiveMessageTransfer $queueMessageTransfer
-     * @param string $errorMessage
-     *
-     * @return \Generated\Shared\Transfer\QueueReceiveMessageTransfer
-     */
     public function markMessageAsFailed(QueueReceiveMessageTransfer $queueMessageTransfer, string $errorMessage = ''): QueueReceiveMessageTransfer;
 
     /**

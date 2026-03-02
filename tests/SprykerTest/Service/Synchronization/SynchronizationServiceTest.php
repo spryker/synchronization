@@ -26,9 +26,6 @@ class SynchronizationServiceTest extends Unit
      */
     protected SynchronizationServiceTester $tester;
 
-    /**
-     * @return void
-     */
     public function testGenerateNormalaizedWithooutColonInKeyWhereIsSingleKeyFormatNormalizedIsTrue(): void
     {
         // Arrange
@@ -43,9 +40,6 @@ class SynchronizationServiceTest extends Unit
         $this->assertSame(SynchronizationServiceTester::RESOURCE, $key);
     }
 
-    /**
-     * @return void
-     */
     public function testGenerateWithColonInKeyWhereIsSingleKeyFormatNormalizedIsFalse(): void
     {
         // Arrange

@@ -38,9 +38,6 @@ class ExportSynchronizedDataConsole extends Console
      */
     public const OPTION_IDS = 'ids';
 
-    /**
-     * @return void
-     */
     protected function configure(): void
     {
         $this->addArgument(static::RESOURCE, InputArgument::OPTIONAL, 'Defines which resource(s) should be exported, if there is more than one, use comma to separate them.
@@ -53,12 +50,6 @@ class ExportSynchronizedDataConsole extends Console
             ->addUsage($this->getResourcesUsageText());
     }
 
-    /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     *
-     * @return int
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $resources = [];
@@ -85,9 +76,6 @@ class ExportSynchronizedDataConsole extends Console
         return static::CODE_SUCCESS;
     }
 
-    /**
-     * @return string
-     */
     protected function getResourcesUsageText(): string
     {
         $availableResourceNames = $this->getFacade()->getAvailableResourceNames();

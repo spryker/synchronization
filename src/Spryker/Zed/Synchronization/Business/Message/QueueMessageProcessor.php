@@ -33,10 +33,6 @@ class QueueMessageProcessor implements QueueMessageProcessorInterface
      */
     protected $queueMessageHelper;
 
-    /**
-     * @param \Spryker\Zed\Synchronization\Business\Synchronization\SynchronizationInterface $synchronization
-     * @param \Spryker\Zed\Synchronization\Business\Message\QueueMessageHelperInterface $queueMessageHelper
-     */
     public function __construct(SynchronizationInterface $synchronization, QueueMessageHelperInterface $queueMessageHelper)
     {
         $this->synchronization = $synchronization;
@@ -57,11 +53,6 @@ class QueueMessageProcessor implements QueueMessageProcessorInterface
         return $queueMessageTransfers;
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\QueueReceiveMessageTransfer $queueMessageTransfer
-     *
-     * @return \Generated\Shared\Transfer\QueueReceiveMessageTransfer
-     */
     protected function processMessage(QueueReceiveMessageTransfer $queueMessageTransfer): QueueReceiveMessageTransfer
     {
         try {
@@ -78,12 +69,6 @@ class QueueMessageProcessor implements QueueMessageProcessorInterface
         return $queueMessageTransfer;
     }
 
-    /**
-     * @param array $messageBody
-     * @param string $queueName
-     *
-     * @return void
-     */
     protected function processMessageWriteType(array $messageBody, string $queueName): void
     {
         if (!isset($messageBody[static::TYPE_WRITE])) {
@@ -93,12 +78,6 @@ class QueueMessageProcessor implements QueueMessageProcessorInterface
         $this->synchronization->write($messageBody[static::TYPE_WRITE], $queueName);
     }
 
-    /**
-     * @param array $messageBody
-     * @param string $queueName
-     *
-     * @return void
-     */
     protected function processMessageDeleteType(array $messageBody, string $queueName): void
     {
         if (!isset($messageBody[static::TYPE_DELETE])) {

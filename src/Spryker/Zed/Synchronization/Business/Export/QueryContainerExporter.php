@@ -173,13 +173,6 @@ class QueryContainerExporter implements ExporterInterface
         return $queueSendTransfers;
     }
 
-    /**
-     * @param \Spryker\Zed\SynchronizationExtension\Dependency\Plugin\SynchronizationDataQueryContainerPluginInterface $plugin
-     * @param \Propel\Runtime\ActiveRecord\ActiveRecordInterface $synchronizationEntity
-     * @param string|null $store
-     *
-     * @return \Generated\Shared\Transfer\QueueSendMessageTransfer
-     */
     protected function createSynchronizationQueueMessageTransfer(
         SynchronizationDataQueryContainerPluginInterface $plugin,
         ActiveRecordInterface $synchronizationEntity,
@@ -195,12 +188,6 @@ class QueryContainerExporter implements ExporterInterface
         return $this->queueMessageCreator->createQueueMessage($syncQueueMessage, $plugin, $store);
     }
 
-    /**
-     * @param bool $hasStore
-     * @param \Propel\Runtime\ActiveRecord\ActiveRecordInterface $entity
-     *
-     * @return string|null
-     */
     protected function getStore(bool $hasStore, ActiveRecordInterface $entity): ?string
     {
         if ($hasStore) {

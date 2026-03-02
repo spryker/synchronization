@@ -14,8 +14,5 @@ interface SynchronizationToStoreFacadeInterface
      */
     public function getAllStores(): array;
 
-    /**
-     * @return bool
-     */
     public function isDynamicStoreEnabled(): bool;
 }

@@ -25,9 +25,6 @@ class QueueMessageCreator implements QueueMessageCreatorInterface
      */
     protected $encodingService;
 
-    /**
-     * @param \Spryker\Zed\Synchronization\Dependency\Service\SynchronizationToUtilEncodingServiceInterface $encodingService
-     */
     public function __construct(SynchronizationToUtilEncodingServiceInterface $encodingService)
     {
         $this->encodingService = $encodingService;

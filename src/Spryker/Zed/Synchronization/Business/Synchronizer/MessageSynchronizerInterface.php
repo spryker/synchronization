@@ -11,15 +11,7 @@ use Generated\Shared\Transfer\SynchronizationMessageTransfer;
 
 interface MessageSynchronizerInterface
 {
-    /**
-     * @param \Generated\Shared\Transfer\SynchronizationMessageTransfer $synchronizationMessage
-     *
-     * @return void
-     */
     public function addSynchronizationMessage(SynchronizationMessageTransfer $synchronizationMessage): void;
 
-    /**
-     * @return void
-     */
     public function flushSynchronizationMessages(): void;
 }

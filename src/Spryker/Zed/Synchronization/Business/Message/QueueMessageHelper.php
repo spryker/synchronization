@@ -18,20 +18,11 @@ class QueueMessageHelper implements QueueMessageHelperInterface
      */
     protected $utilEncodingService;
 
-    /**
-     * @param \Spryker\Zed\Synchronization\Dependency\Service\SynchronizationToUtilEncodingServiceInterface $utilEncodingService
-     */
     public function __construct(SynchronizationToUtilEncodingServiceInterface $utilEncodingService)
     {
         $this->utilEncodingService = $utilEncodingService;
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\QueueReceiveMessageTransfer $queueMessageTransfer
-     * @param string $errorMessage
-     *
-     * @return \Generated\Shared\Transfer\QueueReceiveMessageTransfer
-     */
     public function markMessageAsFailed(QueueReceiveMessageTransfer $queueMessageTransfer, string $errorMessage = ''): QueueReceiveMessageTransfer
     {
         $this->setMessageError($queueMessageTransfer, $errorMessage);
@@ -44,12 +35,6 @@ class QueueMessageHelper implements QueueMessageHelperInterface
         return $queueMessageTransfer;
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\QueueReceiveMessageTransfer $queueMessageTransfer
-     * @param string $errorMessage
-     *
-     * @return void
-     */
     protected function setMessageError(QueueReceiveMessageTransfer $queueMessageTransfer, string $errorMessage = ''): void
     {
         $queueMessageBody = $this->decodeJson($queueMessageTransfer->getQueueMessage()->getBody(), true);

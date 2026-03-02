@@ -94,9 +94,6 @@ class SynchronizationFacadeTest extends Unit
      */
     protected $synchronizationFacade;
 
-    /**
-     * @return void
-     */
     public function testProcessSearchMessages(): void
     {
         $queueMessageBody = [
@@ -167,9 +164,6 @@ class SynchronizationFacadeTest extends Unit
         $this->synchronizationFacade->processSearchMessages([$queueMessageTransfer]);
     }
 
-    /**
-     * @return void
-     */
     public function testProcessStorageMessages(): void
     {
         $queueMessageBody = [
@@ -227,9 +221,6 @@ class SynchronizationFacadeTest extends Unit
         $this->synchronizationFacade->processStorageMessages([$queueMessageTransfer]);
     }
 
-    /**
-     * @return void
-     */
     public function testSynchronizationWritesDataToStorage(): void
     {
         $container = new Container();
@@ -259,9 +250,6 @@ class SynchronizationFacadeTest extends Unit
         ], 'test');
     }
 
-    /**
-     * @return void
-     */
     public function testSynchronizationDeletesDataToStorage(): void
     {
         $container = new Container();
@@ -288,9 +276,6 @@ class SynchronizationFacadeTest extends Unit
         ], 'test');
     }
 
-    /**
-     * @return void
-     */
     public function testSynchronizationWritesDataToSearch(): void
     {
         $container = new Container();
@@ -330,9 +315,6 @@ class SynchronizationFacadeTest extends Unit
         ], 'test');
     }
 
-    /**
-     * @return void
-     */
     public function testSynchronizationDeleteDataToSearch(): void
     {
         $container = new Container();
@@ -372,9 +354,6 @@ class SynchronizationFacadeTest extends Unit
         ], 'test');
     }
 
-    /**
-     * @return void
-     */
     public function testExecuteResolvedPluginsBySources(): void
     {
         if (!$this->isSuiteProject()) {
@@ -407,9 +386,6 @@ class SynchronizationFacadeTest extends Unit
         $this->tester->getFacade()->executeResolvedPluginsBySources([]);
     }
 
-    /**
-     * @return bool
-     */
     public function isSuiteProject(): bool
     {
         if (getenv(static::PARAM_PROJECT) === static::PROJECT_SUITE) {
@@ -432,9 +408,6 @@ class SynchronizationFacadeTest extends Unit
             ->getMock();
     }
 
-    /**
-     * @return array
-     */
     protected function createSynchronizationDataPlugins(): array
     {
         return [
@@ -526,9 +499,6 @@ class SynchronizationFacadeTest extends Unit
             ->getMock();
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface
-     */
     protected function createSynchronizationToStoreFacadeBridge(): SynchronizationToStoreFacadeInterface
     {
         $container = new Container();
@@ -538,9 +508,6 @@ class SynchronizationFacadeTest extends Unit
         );
     }
 
-    /**
-     * @return \Spryker\Zed\Synchronization\Dependency\Service\SynchronizationToUtilEncodingServiceBridge
-     */
     protected function createUtilEncodingServiceBridge(): SynchronizationToUtilEncodingServiceBridge
     {
         return new SynchronizationToUtilEncodingServiceBridge(
@@ -548,11 +515,6 @@ class SynchronizationFacadeTest extends Unit
         );
     }
 
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return void
-     */
     protected function prepareFacade(Container $container): void
     {
         $synchronizationBusinessFactory = new SynchronizationBusinessFactory();

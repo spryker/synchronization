@@ -53,11 +53,6 @@ class InMemoryMessageSynchronizer implements MessageSynchronizerInterface
         $this->synchronizationWriters = $synchronizationWriters;
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\SynchronizationMessageTransfer $synchronizationMessage
-     *
-     * @return void
-     */
     public function addSynchronizationMessage(SynchronizationMessageTransfer $synchronizationMessage): void
     {
         $operationType = $synchronizationMessage->getOperationType();
@@ -71,9 +66,6 @@ class InMemoryMessageSynchronizer implements MessageSynchronizerInterface
         static::$messages[$destinationType][$fallbackQueueName][$operationType][] = $synchronizationMessage;
     }
 
-    /**
-     * @return void
-     */
     public function flushSynchronizationMessages(): void
     {
         if (!static::$messages) {

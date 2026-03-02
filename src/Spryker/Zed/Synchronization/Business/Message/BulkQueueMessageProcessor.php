@@ -43,10 +43,6 @@ class BulkQueueMessageProcessor implements QueueMessageProcessorInterface
      */
     protected $queueMessageHelper;
 
-    /**
-     * @param \Spryker\Zed\Synchronization\Business\Synchronization\SynchronizationInterface $synchronization
-     * @param \Spryker\Zed\Synchronization\Business\Message\QueueMessageHelperInterface $queueMessageHelper
-     */
     public function __construct(SynchronizationInterface $synchronization, QueueMessageHelperInterface $queueMessageHelper)
     {
         $this->synchronization = $synchronization;
@@ -172,11 +168,6 @@ class BulkQueueMessageProcessor implements QueueMessageProcessorInterface
         return $markedQueueMessageTransfers;
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\QueueReceiveMessageTransfer $queueMessageTransfer
-     *
-     * @return array
-     */
     protected function extractQuoteMessageBody(QueueReceiveMessageTransfer $queueMessageTransfer): array
     {
         $queueMessage = $queueMessageTransfer->getQueueMessage();

@@ -29,9 +29,6 @@ use Spryker\Zed\Synchronization\SynchronizationConfig;
  */
 class RepositoryExporterTest extends Unit
 {
-    /**
-     * @return void
-     */
     public function testExportSynchronizedDataWillNotDisablePoolingWithDisableInstantPoolingParamFalse(): void
     {
         // Arrange
@@ -43,9 +40,6 @@ class RepositoryExporterTest extends Unit
         $repositoryExporterMock->exportSynchronizedData([], []);
     }
 
-    /**
-     * @return void
-     */
     public function testExportSynchronizedDataWillDisablePoolingWithDisableInstantPoolingParamTrue(): void
     {
         // Arrange
@@ -57,11 +51,6 @@ class RepositoryExporterTest extends Unit
         $repositoryExporterMock->exportSynchronizedData([], []);
     }
 
-    /**
-     * @param bool $disablePropelInstancePool
-     *
-     * @return \Spryker\Zed\Synchronization\Business\Export\ExporterInterface
-     */
     protected function createRepositoryExporterMock(bool $disablePropelInstancePool): ExporterInterface
     {
         $synchronizationConfigStub = $this->getMockBuilder(SynchronizationConfig::class)

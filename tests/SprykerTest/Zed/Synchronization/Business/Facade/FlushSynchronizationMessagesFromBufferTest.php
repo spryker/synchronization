@@ -34,9 +34,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
      */
     protected SynchronizationBusinessTester $tester;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,9 +42,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->clearStaticVariable(SynchronizationBusinessFactory::class, 'inMemoryMessageSynchronizer');
     }
 
-    /**
-     * @return void
-     */
     public function testShouldWriteBulkStorageAndSearchMessages(): void
     {
         // Assert
@@ -68,9 +62,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
     }
 
-    /**
-     * @return void
-     */
     public function testShouldDeleteBulkStorageAndSearchMessages(): void
     {
         // Assert
@@ -91,9 +82,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
     }
 
-    /**
-     * @return void
-     */
     public function testShouldDeleteAndWriteBulkStorageAndSearchMessages(): void
     {
         // Assert
@@ -124,9 +112,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
     }
 
-    /**
-     * @return void
-     */
     public function testShouldSkipSynchronizationWhenMessagesAreEmpty(): void
     {
         // Assert
@@ -136,9 +121,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
     }
 
-    /**
-     * @return void
-     */
     public function testShouldCatchExceptionWhenSynchronizationForDestinationTypeNotFound(): void
     {
         // Assert
@@ -154,9 +136,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
     }
 
-    /**
-     * @return void
-     */
     public function testShouldSkipSynchronizationForNotFoundOperationType(): void
     {
         // Assert
@@ -172,12 +151,6 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
     }
 
-    /**
-     * @param string $operationType
-     * @param bool $expectSendToQueue
-     *
-     * @return void
-     */
     protected function assertBulkMessageProcessing(
         string $operationType,
         bool $expectSendToQueue = false

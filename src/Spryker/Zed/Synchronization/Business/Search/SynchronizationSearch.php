@@ -52,11 +52,6 @@ class SynchronizationSearch implements SynchronizationInterface
      */
     protected const DESTINATION_TYPE = 'search';
 
-    /**
-     * @param \Spryker\Zed\Synchronization\Dependency\Client\SynchronizationToSearchClientInterface $searchClient
-     * @param \Spryker\Zed\Synchronization\Business\Validation\OutdatedValidatorInterface $outdatedValidator
-     * @param \Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface $storeFacade
-     */
     public function __construct(
         protected SynchronizationToSearchClientInterface $searchClient,
         protected OutdatedValidatorInterface $outdatedValidator,
@@ -257,21 +252,11 @@ class SynchronizationSearch implements SynchronizationInterface
         $this->searchClient->deleteDocuments($searchDocumentTransfers);
     }
 
-    /**
-     * @param string $destinationType
-     *
-     * @return bool
-     */
     public function isDestinationTypeApplicable(string $destinationType): bool
     {
         return $destinationType === static::DESTINATION_TYPE;
     }
 
-    /**
-     * @param array $data
-     *
-     * @return array
-     */
     protected function expandWithStoreNames(array $data): array
     {
         $expandedData = [];

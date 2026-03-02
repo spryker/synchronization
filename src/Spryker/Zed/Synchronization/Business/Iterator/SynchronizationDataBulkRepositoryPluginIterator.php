@@ -43,17 +43,11 @@ class SynchronizationDataBulkRepositoryPluginIterator extends AbstractSynchroniz
         }
     }
 
-    /**
-     * @return void
-     */
     protected function updateCurrent(): void
     {
         $this->current = $this->plugin->getData($this->offset, $this->chunkSize, $this->filterIds);
     }
 
-    /**
-     * @return bool
-     */
     public function valid(): bool
     {
         $valid = parent::valid();
@@ -65,9 +59,6 @@ class SynchronizationDataBulkRepositoryPluginIterator extends AbstractSynchroniz
         return $valid;
     }
 
-    /**
-     * @return bool
-     */
     protected function isIterationLimitExceeded(): bool
     {
         return $this->offset + $this->chunkSize > $this->iterationLimit;

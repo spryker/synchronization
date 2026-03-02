@@ -115,9 +115,6 @@ class SynchronizationDataTransferObjectFormatter extends AbstractFormatterWithHy
         return $synchronizationDataTransfer;
     }
 
-    /**
-     * @return bool
-     */
     public function isObjectFormatter(): bool
     {
         return false;
