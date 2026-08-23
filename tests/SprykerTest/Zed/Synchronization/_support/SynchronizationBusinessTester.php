@@ -33,7 +33,6 @@ class SynchronizationBusinessTester extends Actor
     {
         $reflectionResolver = new ReflectionClass($className);
         $reflectionProperty = $reflectionResolver->getProperty($propertyName);
-        $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue([]);
     }
 
@@ -47,7 +46,6 @@ class SynchronizationBusinessTester extends Actor
     {
         $reflectionResolver = new ReflectionClass($className);
         $reflectionProperty = $reflectionResolver->getProperty($propertyName);
-        $reflectionProperty->setAccessible(true);
 
         return $reflectionProperty->getValue();
     }
