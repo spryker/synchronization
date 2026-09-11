@@ -15,6 +15,11 @@ use Spryker\Service\Kernel\AbstractService;
 class SynchronizationService extends AbstractService implements SynchronizationServiceInterface
 {
     /**
+     * @var array<string, \Spryker\Service\Synchronization\Dependency\Plugin\SynchronizationKeyGeneratorPluginInterface>
+     */
+    protected array $storageKeyBuilders = [];
+
+    /**
      * {@inheritDoc}
      *
      * @api
@@ -25,7 +30,13 @@ class SynchronizationService extends AbstractService implements SynchronizationS
      */
     public function getStorageKeyBuilder($resourceName)
     {
-        return $this->getFactory()->createSynchronizationKeyBuilder()->getStorageKeyBuilder($resourceName);
+        if (!isset($this->storageKeyBuilders[$resourceName])) {
+            return $this->storageKeyBuilders[$resourceName] = $this->getFactory()
+                ->createSynchronizationKeyBuilder()
+                ->getStorageKeyBuilder($resourceName);
+        }
+
+        return $this->storageKeyBuilders[$resourceName];
     }
 
     /**
