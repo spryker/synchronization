@@ -85,6 +85,8 @@ class InMemoryMessageSynchronizer implements MessageSynchronizerInterface
                 }
             }
         }
+
+        static::$messages = [];
     }
 
     /**

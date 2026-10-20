@@ -151,6 +151,81 @@ class FlushSynchronizationMessagesFromBufferTest extends Unit
         $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
     }
 
+    public function testShouldNotResendMessagesWhenFlushedTwice(): void
+    {
+        // Arrange
+        $storageManagerMock = $this->mockStorageManager();
+        $storageManagerMock->expects($this->once())->method('deleteBulk');
+
+        $this->tester->getFacade()->addSynchronizationMessageToBuffer(
+            (new SynchronizationMessageTransfer())->fromArray($this->tester->createFakeSynchronizationMessage('storage', 'sync.storage.product', 'delete')),
+        );
+
+        // Act
+        $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
+        $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
+    }
+
+    public function testShouldSendOnlyMessagesAddedAfterPreviousFlush(): void
+    {
+        // Arrange
+        $deletedData = [];
+        $storageManagerMock = $this->mockStorageManager();
+        $storageManagerMock->expects($this->exactly(2))
+            ->method('deleteBulk')
+            ->willReturnCallback(function (array $data) use (&$deletedData): void {
+                $deletedData[] = $data;
+            });
+
+        $firstMessage = $this->tester->createFakeSynchronizationMessage('storage', 'sync.storage.product', 'delete');
+        $secondMessage = $this->tester->createFakeSynchronizationMessage('storage', 'sync.storage.product', 'delete');
+        $secondMessage['data']['key'] = 'product_concrete:en_us:322';
+
+        // Act
+        $this->tester->getFacade()->addSynchronizationMessageToBuffer((new SynchronizationMessageTransfer())->fromArray($firstMessage));
+        $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
+        $this->tester->getFacade()->addSynchronizationMessageToBuffer((new SynchronizationMessageTransfer())->fromArray($secondMessage));
+        $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
+
+        // Assert
+        $this->assertSame([[$firstMessage['data']], [$secondMessage['data']]], $deletedData);
+    }
+
+    public function testShouldNotResendFailedMessagesToQueueWhenFlushedTwice(): void
+    {
+        // Arrange
+        $this->mockStorageManager();
+        $queueClientMock = $this->createMock(SynchronizationToQueueClientInterface::class);
+        $queueClientMock->expects($this->once())->method('sendMessages');
+        $this->tester->mockFactoryMethod('getQueueClient', $queueClientMock);
+
+        $this->tester->getFacade()->addSynchronizationMessageToBuffer(
+            (new SynchronizationMessageTransfer())->fromArray($this->tester->createFakeSynchronizationMessage('unknown', 'sync.unknown.product', 'delete')),
+        );
+
+        // Act
+        $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
+        $this->tester->getFacade()->flushSynchronizationMessagesFromBuffer();
+    }
+
+    protected function mockStorageManager(): SynchronizationStorage
+    {
+        $storageManagerMock = $this->createMock(SynchronizationStorage::class);
+        $storageManagerMock->method('isDestinationTypeApplicable')
+            ->willReturnCallback(function (string $destinationType) {
+                return $destinationType === 'storage';
+            });
+
+        $searchManagerMock = $this->createMock(SynchronizationSearch::class);
+        $searchManagerMock->method('isDestinationTypeApplicable')->willReturn(false);
+
+        $this->tester->mockFactoryMethod('createStorageManager', $storageManagerMock);
+        $this->tester->mockFactoryMethod('createSearchManager', $searchManagerMock);
+        $this->tester->mockFactoryMethod('getQueueClient', $this->createMock(SynchronizationToQueueClientInterface::class));
+
+        return $storageManagerMock;
+    }
+
     protected function assertBulkMessageProcessing(
         string $operationType,
         bool $expectSendToQueue = false
