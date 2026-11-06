@@ -10,23 +10,22 @@ namespace Spryker\Zed\Synchronization\Business\Export;
 use Generated\Shared\Transfer\QueueSendMessageTransfer;
 use Generated\Shared\Transfer\SynchronizationQueueMessageTransfer;
 use Iterator;
+use PDO;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
+use Propel\Runtime\Map\ColumnMap;
 use Spryker\Zed\Kernel\Persistence\EntityManager\InstancePoolingTrait;
+use Spryker\Zed\Synchronization\Business\Iterator\SynchronizationDataQueryContainerKeysetPluginIterator;
 use Spryker\Zed\Synchronization\Business\Iterator\SynchronizationDataQueryContainerPluginIterator;
 use Spryker\Zed\Synchronization\Business\Message\QueueMessageCreatorInterface;
 use Spryker\Zed\Synchronization\Dependency\Client\SynchronizationToQueueClientInterface;
 use Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface;
+use Spryker\Zed\Synchronization\SynchronizationConfig;
 use Spryker\Zed\SynchronizationExtension\Dependency\Plugin\SynchronizationDataQueryContainerPluginInterface;
 use Spryker\Zed\SynchronizationExtension\Dependency\Plugin\SynchronizationDataQueryExpanderStrategyPluginInterface;
 
 class QueryContainerExporter implements ExporterInterface
 {
     use InstancePoolingTrait;
-
-    /**
-     * @var int
-     */
-    protected const DEFAULT_CHUNK_SIZE = 100;
 
     /**
      * @var \Spryker\Zed\Synchronization\Dependency\Client\SynchronizationToQueueClientInterface
@@ -49,33 +48,20 @@ class QueryContainerExporter implements ExporterInterface
     protected $synchronizationDataQueryExpanderStrategyPlugin;
 
     /**
-     * @var int
-     */
-    protected $chunkSize;
-
-    /**
      * @var \Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface
      */
     protected SynchronizationToStoreFacadeInterface $storeFacade;
 
-    /**
-     * @param \Spryker\Zed\Synchronization\Dependency\Client\SynchronizationToQueueClientInterface $queueClient
-     * @param \Spryker\Zed\Synchronization\Dependency\Facade\SynchronizationToStoreFacadeInterface $storeFacade
-     * @param \Spryker\Zed\Synchronization\Business\Message\QueueMessageCreatorInterface $synchronizationQueueMessageCreator
-     * @param \Spryker\Zed\SynchronizationExtension\Dependency\Plugin\SynchronizationDataQueryExpanderStrategyPluginInterface $synchronizationDataQueryExpanderStrategyPlugin
-     * @param int|null $chunkSize
-     */
     public function __construct(
         SynchronizationToQueueClientInterface $queueClient,
         SynchronizationToStoreFacadeInterface $storeFacade,
         QueueMessageCreatorInterface $synchronizationQueueMessageCreator,
         SynchronizationDataQueryExpanderStrategyPluginInterface $synchronizationDataQueryExpanderStrategyPlugin,
-        $chunkSize
+        protected SynchronizationConfig $synchronizationConfig
     ) {
         $this->queueClient = $queueClient;
         $this->queueMessageCreator = $synchronizationQueueMessageCreator;
         $this->synchronizationDataQueryExpanderStrategyPlugin = $synchronizationDataQueryExpanderStrategyPlugin;
-        $this->chunkSize = $chunkSize ?? static::DEFAULT_CHUNK_SIZE;
         $this->storeFacade = $storeFacade;
     }
 
@@ -119,7 +105,33 @@ class QueryContainerExporter implements ExporterInterface
      */
     protected function createSynchronizationDataQueryContainerPluginIterator(array $ids, SynchronizationDataQueryContainerPluginInterface $plugin): Iterator
     {
-        return new SynchronizationDataQueryContainerPluginIterator($plugin, $this->synchronizationDataQueryExpanderStrategyPlugin, $this->chunkSize, $ids);
+        $chunkSize = max(1, (int)$this->synchronizationConfig->getSyncExportChunkSize());
+        $primaryKeyColumnMap = $this->synchronizationConfig->isQueryContainerSyncExportKeysetPaginationEnabled()
+            ? $this->findIntegerPrimaryKeyColumnMap($plugin)
+            : null;
+
+        if ($primaryKeyColumnMap !== null) {
+            return new SynchronizationDataQueryContainerKeysetPluginIterator($plugin, $primaryKeyColumnMap, $chunkSize, $ids);
+        }
+
+        return new SynchronizationDataQueryContainerPluginIterator($plugin, $this->synchronizationDataQueryExpanderStrategyPlugin, $chunkSize, $ids);
+    }
+
+    protected function findIntegerPrimaryKeyColumnMap(SynchronizationDataQueryContainerPluginInterface $plugin): ?ColumnMap
+    {
+        $primaryKeyColumnMaps = $plugin->queryData()?->getTableMap()?->getPrimaryKeys() ?? [];
+
+        if (count($primaryKeyColumnMaps) !== 1) {
+            return null;
+        }
+
+        $primaryKeyColumnMap = current($primaryKeyColumnMaps);
+
+        if ($primaryKeyColumnMap->getPdoType() !== PDO::PARAM_INT) {
+            return null;
+        }
+
+        return $primaryKeyColumnMap;
     }
 
     /**

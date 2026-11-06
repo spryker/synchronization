@@ -70,6 +70,20 @@ class SynchronizationConfig extends AbstractBundleConfig
 
     /**
      * Specification:
+     * - Enables keyset pagination for query container synchronization export if set to true.
+     * - Rows are read in chunks by primary key greater than the last exported primary key, ordered by primary key.
+     * - Applies to query container plugins whose table has a single integer primary key; other plugins use the query expander strategy plugin.
+     * - The query expander strategy plugin is not used for plugins exported with keyset pagination.
+     *
+     * @api
+     */
+    public function isQueryContainerSyncExportKeysetPaginationEnabled(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Specification:
      * - Disables Propel Instance Pooling for repository synchronization export if set to true.
      *
      * @api

@@ -84,7 +84,7 @@ class SynchronizationBusinessFactory extends AbstractBusinessFactory
             $this->getStoreFacade(),
             $this->createQueueMessageCreator(),
             $this->getSynchronizationDataQueryExpanderStrategyPlugin(),
-            $this->getConfig()->getSyncExportChunkSize(),
+            $this->getConfig(),
         );
     }
 

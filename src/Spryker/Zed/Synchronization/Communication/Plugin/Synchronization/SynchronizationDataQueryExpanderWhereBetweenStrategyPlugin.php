@@ -28,14 +28,13 @@ class SynchronizationDataQueryExpanderWhereBetweenStrategyPlugin implements Sync
         SynchronizationDataQueryExpanderStrategyConfigurationTransfer $synchronizationDataQueryExpanderStrategyConfigurationTransfer
     ): ModelCriteria {
         $primaryKeys = $query->getTableMap()->getPrimaryKeys();
+        $primaryKeyColumn = key($primaryKeys);
 
         $offset = $synchronizationDataQueryExpanderStrategyConfigurationTransfer->getOffsetOrFail();
         $chunkSize = $synchronizationDataQueryExpanderStrategyConfigurationTransfer->getChunkSizeOrFail();
 
-        $nextRange = $offset + $chunkSize;
-
         /** @var literal-string $where */
-        $where = sprintf('%s BETWEEN %s AND %s', key($primaryKeys), $offset, $nextRange);
+        $where = sprintf('%s > %d AND %s <= %d', $primaryKeyColumn, $offset, $primaryKeyColumn, $offset + $chunkSize);
         $query
             ->where($where);
 
