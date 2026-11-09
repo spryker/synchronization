@@ -12,6 +12,7 @@ use Closure;
 use Codeception\Module;
 use Codeception\Stub;
 use Codeception\TestInterface;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveQuery\PropelQuery;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Map\ColumnMap;
@@ -53,6 +54,8 @@ class SynchronizationDataExportHelper extends Module
     protected const string MESSAGE_KEY_STORE_SEPARATOR = '|';
 
     protected const string URL_PATTERN = '/sync-data-pk-gap-%d';
+
+    protected const string SYNCHRONIZATION_QUEUE_POOL_NAME = 'synchronizationPool';
 
     /**
      * @var array<int>
@@ -137,6 +140,7 @@ class SynchronizationDataExportHelper extends Module
         bool $isKeysetPaginationEnabled
     ): array {
         $sentMessageKeys = new ArrayObject();
+        $synchronizationDataPlugin = $this->createSynchronizationDataPluginWithQueuePoolNameFallback($synchronizationDataPlugin);
 
         $this->getConfigHelper()->setConfig(SynchronizationConstants::EXPORT_MESSAGE_CHUNK_SIZE, $this->exportChunkSize);
         $this->setSynchronizationDependency(SynchronizationDependencyProvider::PLUGINS_SYNCHRONIZATION_DATA, [$synchronizationDataPlugin]);
@@ -208,6 +212,10 @@ class SynchronizationDataExportHelper extends Module
             $this->setColumnValue($synchronizationEntity, $columnMap, $columnValues, $primaryKey);
         }
 
+        if (method_exists($synchronizationEntity, 'setIsSendingToQueue')) {
+            $synchronizationEntity->setIsSendingToQueue(false);
+        }
+
         $synchronizationEntity->save();
 
         $primaryKeyColumnMap = current($tableMap->getPrimaryKeys());
@@ -259,6 +267,54 @@ class SynchronizationDataExportHelper extends Module
             static::COLUMN_LOCALE => (string)current($storeTransfer->getAvailableLocaleIsoCodes()),
             static::COLUMN_STORE => $storeTransfer->getNameOrFail(),
         ];
+    }
+
+    protected function createSynchronizationDataPluginWithQueuePoolNameFallback(
+        SynchronizationDataQueryContainerPluginInterface $synchronizationDataPlugin
+    ): SynchronizationDataQueryContainerPluginInterface {
+        return new class ($synchronizationDataPlugin, static::SYNCHRONIZATION_QUEUE_POOL_NAME) implements SynchronizationDataQueryContainerPluginInterface {
+            public function __construct(
+                protected SynchronizationDataQueryContainerPluginInterface $synchronizationDataPlugin,
+                protected string $fallbackSynchronizationQueuePoolName
+            ) {
+            }
+
+            public function getResourceName(): string
+            {
+                return $this->synchronizationDataPlugin->getResourceName();
+            }
+
+            public function hasStore(): bool
+            {
+                return $this->synchronizationDataPlugin->hasStore();
+            }
+
+            /**
+             * @return array<mixed>
+             */
+            public function getParams(): array
+            {
+                return $this->synchronizationDataPlugin->getParams();
+            }
+
+            public function getQueueName(): string
+            {
+                return $this->synchronizationDataPlugin->getQueueName();
+            }
+
+            public function getSynchronizationQueuePoolName(): ?string
+            {
+                return $this->synchronizationDataPlugin->getSynchronizationQueuePoolName() ?? $this->fallbackSynchronizationQueuePoolName;
+            }
+
+            /**
+             * @param array<int> $ids
+             */
+            public function queryData($ids = []): ?ModelCriteria
+            {
+                return $this->synchronizationDataPlugin->queryData($ids);
+            }
+        };
     }
 
     protected function setSynchronizationDependency(string $key, mixed $value): void
