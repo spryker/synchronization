@@ -99,7 +99,10 @@ class BulkQueueMessageProcessor implements QueueMessageProcessorInterface
                 $processedMessageTransfers = $this->markEachMessageChunkAsAcknowledged($queueMessageTransfers);
             } catch (Throwable $exception) {
                 $processedMessageTransfers = $this->restoreQueueMessageBodies($queueMessageTransfers, $messageBodies, static::TYPE_WRITE);
-                $processedMessageTransfers = $this->markEachMessageChunkAsFailed($processedMessageTransfers, $exception->getMessage());
+                $processedMessageTransfers = $this->markEachMessageChunkAsFailed(
+                    $processedMessageTransfers,
+                    $this->createErrorMessage($exception, (string)$queueName),
+                );
             }
 
             $resultQueueMessageTransfers = array_merge($resultQueueMessageTransfers, $processedMessageTransfers);
@@ -126,7 +129,10 @@ class BulkQueueMessageProcessor implements QueueMessageProcessorInterface
                 $processedMessageTransfers = $this->markEachMessageChunkAsAcknowledged($queueMessageTransfers);
             } catch (Throwable $exception) {
                 $processedMessageTransfers = $this->restoreQueueMessageBodies($queueMessageTransfers, $messageBodies, static::TYPE_DELETE);
-                $processedMessageTransfers = $this->markEachMessageChunkAsFailed($processedMessageTransfers, $exception->getMessage());
+                $processedMessageTransfers = $this->markEachMessageChunkAsFailed(
+                    $processedMessageTransfers,
+                    $this->createErrorMessage($exception, (string)$queueName),
+                );
             }
 
             $resultQueueMessageTransfers = array_merge($resultQueueMessageTransfers, $processedMessageTransfers);
@@ -201,5 +207,10 @@ class BulkQueueMessageProcessor implements QueueMessageProcessorInterface
         }
 
         return $restoredQueueMessageTransfers;
+    }
+
+    protected function createErrorMessage(Throwable $exception, string $queueName): string
+    {
+        return sprintf('Synchronization: [%s] queue "%s": %s', $exception::class, $queueName, $exception->getMessage());
     }
 }

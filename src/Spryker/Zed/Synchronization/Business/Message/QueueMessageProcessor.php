@@ -63,7 +63,10 @@ class QueueMessageProcessor implements QueueMessageProcessorInterface
 
             $queueMessageTransfer->setAcknowledge(true);
         } catch (Throwable $exception) {
-            $this->queueMessageHelper->markMessageAsFailed($queueMessageTransfer, $exception->getMessage());
+            $this->queueMessageHelper->markMessageAsFailed(
+                $queueMessageTransfer,
+                $this->createErrorMessage($exception, (string)$queueMessageTransfer->getQueueName()),
+            );
         }
 
         return $queueMessageTransfer;
@@ -85,5 +88,10 @@ class QueueMessageProcessor implements QueueMessageProcessorInterface
         }
 
         $this->synchronization->delete($messageBody[static::TYPE_DELETE], $queueName);
+    }
+
+    protected function createErrorMessage(Throwable $exception, string $queueName): string
+    {
+        return sprintf('Synchronization: [%s] queue "%s": %s', $exception::class, $queueName, $exception->getMessage());
     }
 }
